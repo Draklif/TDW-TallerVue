@@ -8,7 +8,7 @@
 
   const deleteItem = (i:number) => {
     items.splice(i, 1)
-    emit('item-deleted', items)
+    emit('item-deleted', items, i)
   }
 </script>
 

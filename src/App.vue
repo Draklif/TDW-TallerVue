@@ -38,8 +38,16 @@
     newValue.value = 1
   }
 
-  const onItemDeleted = (items:[{}]) => {
+  const onItemDeleted = (updatedItems:[{article: string; quantity: number; value: number}], index:number) => {
+    newArticle.value = updatedItems[index].article
+    newQuantity.value = updatedItems[index].quantity * (-1)
+    newValue.value = updatedItems[index].value * (-1)
+
     calculatePrice()
+
+    newArticle.value = ''
+    newQuantity.value = 1
+    newValue.value = 1
   }
 
   const calculatePrice = () => {
