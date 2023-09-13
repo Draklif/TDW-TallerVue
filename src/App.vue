@@ -31,6 +31,9 @@
       value: newValue.value
     })
 
+    quantityTotal.value = quantityTotal.value + newQuantity.value
+    totalBase.value = totalBase.value + (newValue.value * newQuantity.value)
+
     calculatePrice()
 
     newArticle.value = ''
@@ -39,9 +42,16 @@
   }
 
   const onItemDeleted = (updatedItems:[{article: string; quantity: number; value: number}], index:number) => {
+    console.log(updatedItems);
+    
+    console.log(index);
+    
     newArticle.value = updatedItems[index].article
-    newQuantity.value = updatedItems[index].quantity * (-1)
-    newValue.value = updatedItems[index].value * (-1)
+    newQuantity.value = updatedItems[index].quantity
+    newValue.value = updatedItems[index].value
+
+    quantityTotal.value = quantityTotal.value - newQuantity.value
+    totalBase.value = totalBase.value - (newValue.value * newQuantity.value)
 
     calculatePrice()
 
@@ -51,14 +61,15 @@
   }
 
   const calculatePrice = () => {
-    quantityTotal.value = quantityTotal.value + newQuantity.value
-    totalBase.value = totalBase.value + (newValue.value * newQuantity.value)
+    for (const item in items) {
+      
+    }
 
-    if (totalBase.value >= 60000) {
+    if (totalBase.value >= 60000 && discount.value < 5) {
       discount.value = 5
-    } else if (totalBase.value >= 120000) {
+    } else if (totalBase.value >= 120000 && discount.value < 10) {
       discount.value = 10
-    } else if (totalBase.value >= 240000) {
+    } else if (totalBase.value >= 240000 && discount.value < 15) {
       discount.value = 15
     }
 
