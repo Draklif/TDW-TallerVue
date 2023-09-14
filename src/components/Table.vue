@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import { defineProps, defineEmits } from 'vue'
   import DeleteIcon from '../components/icons/IconDelete.vue'
   
   // Inicialización de variables

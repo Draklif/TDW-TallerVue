@@ -143,7 +143,7 @@ const calculateDiscounts = (quantityTotal: number) => {
   }
   if (quantityTotal >= 12) {
     discount.value = 20
-  } else if (quantityTotal >= 6) {
+  } else if (quantityTotal >= 6 && discount.value < 10) {
     discount.value = 10
   }
 }
