@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
+import Swal from 'sweetalert2'
 import Table from './components/Table.vue'
 
+// Inicialización de variables
 const newArticle = ref('')
 const newQuantity = ref(1)
 const newValue = ref(1)
-
 const totalBase = ref(0)
 const totalAbsolute = ref(0)
 const discount = ref(0)
@@ -20,42 +21,115 @@ type Item = {
 // Se define un arreglo reactivo que toma únicamente arreglos de tipo Item
 const items = reactive<Item[]>([])
 
+/** Método que se ejecuta al momento de agregar un artículo */
 const addItem = () => {
+  // Establece en mayúsculas el nombre del artículo
+  newArticle.value = newArticle.value.toUpperCase()
+
+  //  Validación para el nombre del artículo no vacío
   if (newArticle.value === '') {
-    alert('Ingrese un nombre para su artículo')
+    Swal.fire({
+      text: 'Por favor ingrese un nombre para su artículo',
+      icon: 'error',
+      position: 'top',
+      toast: true,
+      timer: 4000,
+      timerProgressBar: true,
+      showConfirmButton: false,
+      width: 520
+    })
     return
   }
 
+  //  Validación para la cantidad y el valor del artículo mayor a 0
   if (newQuantity.value <= 0 || newValue.value <= 0) {
-    alert('Ingrese únicamente valores positivos diferentes de 0')
+    Swal.fire({
+      text: 'Por favor ingrese valores superiores a 0',
+      icon: 'error',
+      position: 'top',
+      toast: true,
+      timer: 4000,
+      timerProgressBar: true,
+      showConfirmButton: false,
+      width: 520
+    })
     return
   }
+  
+  // Se evalúa si el artículo ya se encuentra en la lista
+  if (items.find((item) => (item.article === newArticle.value))) {
+    // En tal caso de que sí, se informa al usuario y se actualiza la cantidad de productos en la lista
+    Swal.fire({
+      text: 'Este artículo ya existe. Se le han aumentado las cantidades',
+      icon: 'info',
+      position: 'top',
+      toast: true,
+      timer: 4000,
+      timerProgressBar: true,
+      showConfirmButton: false,
+      width: 520
+    })
 
-  items.push({
-    article: newArticle.value,
-    quantity: newQuantity.value,
-    value: newValue.value
+    let tempIndex = items.findIndex((item) => (item.article === newArticle.value))
+    items[tempIndex].quantity = items[tempIndex].quantity + newQuantity.value 
+  } else {
+    // De lo contrario, se informa al usuario y se agrega el producto
+    Swal.fire({
+      text: `Se ha agregado x${newQuantity.value} ${newArticle.value} por $${newValue.value}`,
+      icon: 'success',
+      position: 'top',
+      toast: true,
+      timer: 4000,
+      timerProgressBar: true,
+      showConfirmButton: false,
+      width: 520
+    })
+
+    items.push({
+      article: newArticle.value,
+      quantity: newQuantity.value,
+      value: newValue.value
+    })
+  }
+
+  calculatePrice()
+  resetForm()
+}
+
+/** Método que se ejecuta al momento de recibir una eliminación */
+const deleteItem = (i: number) => {
+  items.splice(i, 1)
+
+  Swal.fire({
+    text: 'Producto eliminado correctamente',
+    icon: 'success',
+    position: 'top',
+    toast: true,
+    timer: 4000,
+    timerProgressBar: true,
+    showConfirmButton: false,
+    width: 520
   })
 
   calculatePrice()
   resetForm()
-
-  newArticle.value = ''
-  newQuantity.value = 1
-  newValue.value = 1
 }
 
-const onItemDeleted = () => {
-  calculatePrice()
-  resetForm()
-}
-
+/** Calcula los precios del producto */
 const calculatePrice = () => {
   // El método 'reduce' se encarga de reducir un array a un solo valor, acumulando los elementos a un solo valor
   // Funciona como un for en el sentido que itera todo el array y, en cada iteración, toma el valor de la propiedad 'quantity' y la suma al acumulador llamado 'acum'. El 0 es el valor inicial de 'acum'.
-  let quantityTotal = items.reduce((acum, item) => acum + item.quantity, 0)
+  let quantityTotal: number = items.reduce((acum, item) => acum + item.quantity, 0)
   totalBase.value = items.reduce((acum, item) => acum + item.value * item.quantity, 0)
 
+  calculateDiscounts(quantityTotal)
+  totalAbsolute.value = Math.floor(totalBase.value * (1 - discount.value / 100))
+}
+
+/** Calcula los descuentos con base a la lógica establecida
+ * @param quantityTotal Toma la cantidad total de productos en la lista
+ */
+const calculateDiscounts = (quantityTotal: number) => {
   discount.value = 0
 
   if (totalBase.value >= 60000) {
@@ -67,16 +141,14 @@ const calculatePrice = () => {
   if (totalBase.value >= 240000) {
     discount.value = 15
   }
-
   if (quantityTotal >= 12) {
     discount.value = 20
   } else if (quantityTotal >= 6) {
     discount.value = 10
   }
-
-  totalAbsolute.value = Math.floor(totalBase.value * (1 - discount.value / 100))
 }
 
+/** Reinicia los campos del formulario */
 const resetForm = () => {
   newArticle.value = ''
   newQuantity.value = 1
@@ -85,6 +157,7 @@ const resetForm = () => {
 </script>
 
 <template>
+  <!-- Formulario -->
   <form @submit.prevent="addItem" class="form">
     <label for="txtArticle" class="label">Artículo</label>
     <input id="txtArticle" type="text" v-model="newArticle" class="input" />
@@ -95,8 +168,9 @@ const resetForm = () => {
     <button type="submit" class="button">Agregar</button>
   </form>
 
+  <!-- Contenedor tabla y factura -->
   <section class="dataContainer">
-    <Table :items="items" @item-deleted="onItemDeleted" />
+    <Table :items="items" @item-deleted="deleteItem" />
 
     <div class="showTotal">
       <label for="totalBase" class="totalLabel">Total compra:</label>
@@ -112,7 +186,6 @@ const resetForm = () => {
 </template>
 
 <style scoped>
-
 .form {
   color: black;
   display: flex;

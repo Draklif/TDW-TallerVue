@@ -2,18 +2,17 @@
   import { defineProps, defineEmits } from 'vue'
   import DeleteIcon from '../components/icons/IconDelete.vue'
   
+  // Inicialización de variables
   const { items } = defineProps(['items'])
   const emit = defineEmits(['item-deleted'])
+
+  // Se elimina el primer elemento de la vista
   items.shift()
 
-  const deleteItem = (i:number) => {
-    items.splice(i, 1)
-    emit('item-deleted')
-  }
 </script>
 
 <template>
-  <table class="table">
+  <table class="table" v-if="items.length > 0">
     <thead>
       <tr>
         <th>#</th>
@@ -30,13 +29,19 @@
         <td>{{ item.quantity }}</td>
         <td>${{ item.value }}</td>
         <td>${{ item.quantity * item.value }}</td>
-        <td><button type="button" @click="deleteItem(index)" class="deleteButton"><DeleteIcon /></button></td>
+        <td><button type="button" @click="emit('item-deleted', index)" class="delete-button"><DeleteIcon /></button></td>
       </tr>
     </tbody>
   </table>
+  <p v-else>¡Agrega un producto para iniciar!</p>
 </template>
 
 <style scoped>
+p {
+  color: rgb(130, 130, 130);
+  font-size: medium;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;
