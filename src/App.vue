@@ -7,12 +7,17 @@
   const newValue = ref(1);
 
   const quantityTotal = ref(0);
-
   const totalBase = ref(0);
   const totalAbsolute = ref(0);
   const discount = ref(0);
 
-  const items = reactive([{}])
+  type Item = {
+    article: string,
+    quantity: number,
+    value: number
+  }
+
+  const items = reactive<Item[]>([])
 
   const addItem = () => {
     if (newArticle.value === '') {
@@ -31,9 +36,6 @@
       value: newValue.value
     })
 
-    quantityTotal.value = quantityTotal.value + newQuantity.value
-    totalBase.value = totalBase.value + (newValue.value * newQuantity.value)
-
     calculatePrice()
 
     newArticle.value = ''
@@ -41,18 +43,7 @@
     newValue.value = 1
   }
 
-  const onItemDeleted = (updatedItems:[{article: string; quantity: number; value: number}], index:number) => {
-    console.log(updatedItems);
-    
-    console.log(index);
-    
-    newArticle.value = updatedItems[index].article
-    newQuantity.value = updatedItems[index].quantity
-    newValue.value = updatedItems[index].value
-
-    quantityTotal.value = quantityTotal.value - newQuantity.value
-    totalBase.value = totalBase.value - (newValue.value * newQuantity.value)
-
+  const onItemDeleted = () => {
     calculatePrice()
 
     newArticle.value = ''
@@ -61,27 +52,31 @@
   }
 
   const calculatePrice = () => {
-    for (const item in items) {
-      
-    }
+    quantityTotal.value = 0
+    totalBase.value = 0
+    discount.value = 0
+    totalAbsolute.value = 0
+    for (const item of items) {
+      quantityTotal.value = quantityTotal.value + item.quantity
+      totalBase.value = totalBase.value + (item.value * item.quantity)
 
-    if (totalBase.value >= 60000 && discount.value < 5) {
-      discount.value = 5
-    } else if (totalBase.value >= 120000 && discount.value < 10) {
-      discount.value = 10
-    } else if (totalBase.value >= 240000 && discount.value < 15) {
-      discount.value = 15
-    }
+      if (totalBase.value >= 60000 && discount.value < 5) {
+        discount.value = 5
+      } else if (totalBase.value >= 120000 && discount.value < 10) {
+        discount.value = 10
+      } else if (totalBase.value >= 240000 && discount.value < 15) {
+        discount.value = 15
+      }
 
-    if (quantityTotal.value >= 6 && discount.value < 10) {
-      discount.value = 10
-    } else if (quantityTotal.value >= 12 && discount.value < 20) {
-      discount.value = 20
-    }
+      if (quantityTotal.value >= 6 && discount.value < 10) {
+        discount.value = 10
+      } else if (quantityTotal.value >= 12 && discount.value < 20) {
+        discount.value = 20
+      }
 
-    discount.value = quantityTotal.value < 6 && totalBase.value < 60000 ? 0 : discount.value 
-
-    totalAbsolute.value = Math.floor(totalBase.value * (1 - (discount.value / 100)))
+      discount.value = quantityTotal.value < 6 && totalBase.value < 60000 ? 0 : discount.value 
+      totalAbsolute.value = Math.floor(totalBase.value * (1 - (discount.value / 100)))
+    } 
   }
 </script>
 

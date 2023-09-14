@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { ref, defineProps, defineEmits } from 'vue'
+  import { defineProps, defineEmits } from 'vue'
   import DeleteIcon from '../components/icons/IconDelete.vue'
   
   const { items } = defineProps(['items'])
@@ -8,7 +8,7 @@
 
   const deleteItem = (i:number) => {
     items.splice(i, 1)
-    emit('item-deleted', items, i)
+    emit('item-deleted')
   }
 </script>
 
